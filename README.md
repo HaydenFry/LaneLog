@@ -2,7 +2,7 @@
 
 LaneLog is a swim race tracker for swimmers and coaches. I originally built it in Twine for DH 200 / ENGL 285 and used ChatGPT (UTK AI Hub Engine) to expand it for this assignment.
 
-[Open LaneLog](https://YOUR-USERNAME.github.io/lanelog/) · [AI Use Log](https://YOUR-USERNAME.github.io/lanelog/#ai-use-log)
+[Open LaneLog](https://haydenfry.github.io/LaneLog/) · [AI Use Log](https://haydenfry.github.io/LaneLog/#ai-use-log)
 
 ## What I improved
 
@@ -10,3 +10,7 @@ LaneLog is a swim race tracker for swimmers and coaches. I originally built it i
 - **Race entry** — Enter a time in seconds or minutes and seconds. For example, `62.34` automatically formats as `1:02.34`. You can also log multiple races at once.
 - **Dashboard** — View race history, personal bests, and progression by event and pool course.
 - **Coach mode** — Select a swimmer from the Team Roster to open their own dashboard. Use the **Team Roster** button to return to the list and switch swimmers.
+
+## AI Use Log
+
+I used ChatGPT on November 18, 2026, to continue working on LaneLog after the November 13 and 16 participation assignments. I provided the original Twine export and specified the changes I wanted. Both prompts and a summary of ChatGPT’s contributions are in the **AI Use Log** at the bottom of the live site.
