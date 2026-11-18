@@ -2,7 +2,7 @@
 
 LaneLog is a swim race tracker for swimmers and coaches. I originally built it in Twine for DH 200 / ENGL 285 and used ChatGPT (UTK AI Hub Engine) to expand it for this assignment.
 
-[Open LaneLog](https://haydenfry.github.io/LaneLog/) · [AI Use Log](https://haydenfry.github.io/LaneLog/#ai-use-log)
+[Open LaneLog](https://haydenfry.github.io/LaneLog/LANELOG.html) · [AI Use Log](#ai-use-log)
 
 ## What I improved
 
