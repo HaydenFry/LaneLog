@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b35">
+<title>LaneLog — Swim Race Tracker</title>
+<style>
+:root{color-scheme:light;--bg:#f0f5f4;--paper:#fff;--ink:#102b35;--muted:#486368;--line:#d6e3e1;--teal:#08695c;--mint:#dff3e9;--lime:#d8f58d;--red:#9f302b;font:16px/1.5 system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.55}button,input,select,textarea,summary{scroll-margin:1rem}:focus-visible{outline:3px solid #168974;outline-offset:3px}[hidden]{display:none!important}
+header{background:var(--ink);color:white}.top{max-width:1200px;margin:auto;padding:15px 28px;display:flex;gap:18px;align-items:center}.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.34rem;letter-spacing:-.05em;margin-right:auto}.mark{display:grid;place-items:center;background:var(--lime);width:33px;height:33px;border-radius:10px;color:var(--ink);font-size:1.45rem;font-weight:900}.modes{display:flex;gap:4px}.modes button,.top .backup{border:1px solid transparent;color:#e1eeee;background:transparent;padding:8px 13px;border-radius:8px;font-weight:650}.modes button[aria-current=true],.modes button:hover{background:#254653;color:white}.top .backup{border-color:#5b787e}.top .backup:hover{background:#254653}
+main{max-width:1200px;margin:auto;padding:30px 28px 55px}.statusbar{min-height:28px;display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;color:var(--muted);font-size:.84rem}.statusbar strong{font-weight:650}.statusbar .saved:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#168974;margin-right:7px}.statusbar .warning:before{background:#b54b32}.notice{margin:0 0 12px;padding:8px 12px;border-radius:8px;background:var(--mint);color:#114c43}.notice:empty{display:none}
+.hero{background:#143943;color:white;border-radius:20px;padding:29px 30px;display:flex;justify-content:space-between;align-items:center;gap:18px;overflow:hidden;position:relative}.hero:after{content:"";position:absolute;inset:0 0 0 60%;opacity:.17;pointer-events:none;background:repeating-linear-gradient(156deg,transparent 0 26px,#77c9bc 27px 28px,transparent 29px 45px)}.hero>*{z-index:1;min-width:0}.eyebrow{display:block;color:#bde9da;text-transform:uppercase;font-size:.72rem;letter-spacing:.14em;font-weight:800;margin-bottom:5px}.hero h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.02;letter-spacing:-.055em;margin:0;overflow-wrap:anywhere}.hero p{margin:9px 0 0;color:#d6e8eb}.hero-actions,.actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:41px;padding:8px 14px;background:var(--paper);border:1px solid var(--line);border-radius:9px;font-weight:700;color:var(--ink);text-decoration:none}.btn:hover{background:#eaf4ef}.btn.primary{background:var(--teal);color:white;border-color:var(--teal)}.btn.primary:hover{background:#075348}.btn.lime{background:var(--lime);border-color:var(--lime);color:var(--ink)}.btn.lime:hover{background:#e8fbb3}.btn.ghost{color:white;background:#143943;border-color:#709194}.btn.ghost:hover{background:#264b54}.btn.danger{color:var(--red)}.btn.small{font-size:.85rem;min-height:34px;padding:4px 10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.stat{background:var(--paper);border:1px solid var(--line);padding:13px 16px;border-radius:12px;min-width:0}.stat span{display:block;color:var(--muted);font-size:.78rem;font-weight:700}.stat strong{display:block;font-size:1.32rem;font-weight:750;letter-spacing:-.025em;margin-top:3px}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:16px;align-items:start}.panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}.panel h2{font-size:1.3rem;line-height:1.2;letter-spacing:-.025em;margin:0 0 5px}.panel-head{display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:15px}.panel-head p,.hint{color:var(--muted);font-size:.84rem;margin:0}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;align-content:start;gap:4px;min-width:0}.full{grid-column:1/-1}.field span:first-child,.label{font-weight:700;font-size:.84rem}input,select,textarea{color:var(--ink);background:white;border:1px solid #a7bfbc;border-radius:8px;padding:8px 10px;min-height:41px;width:100%;min-width:0}textarea{resize:vertical}input[type=date]{appearance:none}.time-input{font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.025em}.time-help{min-height:1.28em}.time-ready{color:var(--teal);font-weight:750}.error{color:var(--red);margin:7px 0;white-space:pre-line;font-size:.88rem}.error:empty{display:none}details{margin:14px 0;color:var(--ink)}summary{cursor:pointer;color:var(--teal);font-weight:750;font-size:.89rem}details .fields,details p,details textarea{margin-top:10px}.form-actions{margin-top:15px}.check{display:flex;gap:7px;align-items:center;font-size:.88rem;font-weight:650}.check input{width:17px;height:17px;min-height:0;accent-color:var(--teal)}
+.tabs{display:flex;gap:3px;overflow:auto;border-bottom:1px solid var(--line);margin-bottom:15px}.tabs button{flex:1 0 auto;border:0;border-bottom:2px solid transparent;padding:9px 8px;background:white;color:var(--muted);font-weight:700;font-size:.84rem}.tabs button[aria-selected=true]{border-color:var(--teal);color:var(--teal)}.tabs button:focus-visible{outline-offset:-4px}.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.empty{border:1px dashed #b3cbc6;border-radius:10px;padding:20px 14px;color:var(--muted);background:#f7fbfa;text-align:center}.empty p{margin:0}.results{list-style:none;margin:0;padding:0}.result{display:flex;justify-content:space-between;gap:12px;align-items:start;border-top:1px solid var(--line);padding:11px 0}.result:first-child{border-top:0}.result strong,.result span{overflow-wrap:anywhere}.result-info{min-width:0}.result-info div{font-size:.81rem;color:var(--muted)}.result-side{display:grid;justify-items:end;flex-shrink:0;gap:5px}.time{font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums}.course{display:inline-block;color:#21594e;background:var(--mint);border-radius:5px;font-size:.69rem;font-weight:800;padding:1px 5px;vertical-align:middle;margin-left:4px}.graph-wrap svg{display:block;width:100%;height:auto;margin:10px 0}.graph-wrap svg text{font:12px system-ui,sans-serif;fill:#486368}.graph-wrap figcaption{font-size:.84rem;color:var(--muted)}figure{margin:0}
+.roster{margin-top:16px}.roster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:10px;margin-top:16px}.swimmer{display:flex;text-align:left;align-items:center;gap:11px;background:#f7fbfa;border:1px solid var(--line);border-radius:11px;padding:12px;color:var(--ink);min-width:0}.swimmer:hover{background:var(--mint)}.swimmer .initials{display:grid;place-items:center;flex:none;width:37px;height:37px;border-radius:9px;background:var(--mint);color:var(--teal);font-weight:800}.swimmer .swimmer-label{flex:1;overflow-wrap:anywhere}.swimmer small{display:block;color:var(--muted)}.add-swimmer{display:flex;align-items:end;gap:9px;max-width:480px}.add-swimmer .field{flex:1}.back-link{margin-bottom:12px}.dialog{width:min(530px,calc(100% - 28px));max-height:calc(100% - 28px);overflow:auto;border:1px solid var(--line);border-radius:16px;padding:22px;color:var(--ink);background:white;box-shadow:0 18px 60px #09273344}.dialog::backdrop{background:#102b3599}.dialog h2{margin:0}.dialog p{margin:8px 0}.dialog hr{border:0;border-top:1px solid var(--line);margin:18px 0}.dialog .actions{margin-top:12px}.dialog-head{display:flex;gap:12px;justify-content:space-between;align-items:center}.file-input{padding:6px}.plain-link{border:0;background:transparent;color:var(--teal);font-weight:750;text-decoration:underline;text-underline-offset:3px;padding:4px}
+@media(max-width:820px){.workspace{grid-template-columns:1fr}.hero{padding:24px}.top,main{padding-left:18px;padding-right:18px}}@media(max-width:500px){.top{padding:11px 12px;gap:6px;flex-wrap:wrap}.brand{font-size:1.15rem;gap:6px}.mark{width:25px;height:25px}.modes button,.top .backup{font-size:.8rem;padding:7px}.hero{flex-wrap:wrap;padding:19px}.hero p{font-size:.86rem}main{padding:18px 12px 40px}.stats{gap:6px}.stat{padding:8px}.stat span{font-size:.7rem}.stat strong{font-size:.98rem}.panel{padding:13px}.panel-head{flex-wrap:wrap}.statusbar{font-size:.74rem}.result{gap:6px}.filters{gap:6px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand"><span class="mark" aria-hidden="true">≋</span>LaneLog</div>
+    <nav class="modes" aria-label="Tracking mode">
+      <button id="personal-mode" type="button">Personal</button>
+      <button id="coach-mode" type="button">Coach</button>
+    </nav>
+    <button id="open-backup" type="button" class="backup">Backups</button>
+  </div>
+</header>
+<main>
+  <div class="statusbar"><strong id="view-label">Personal mode</strong><span id="save-status" role="status" class="saved"></span></div>
+  <p id="notice" class="notice" role="status"></p>
+  <section id="roster" hidden>
+    <div class="hero">
+      <div><span class="eyebrow">Coach mode</span><h1 tabindex="-1" id="roster-title">Team Roster</h1><p>Choose a swimmer to log races and see their progress.</p></div>
+    </div>
+    <section class="panel roster" aria-labelledby="swimmer-heading">
+      <div class="panel-head"><div><h2 id="swimmer-heading">Swimmers</h2><p id="roster-count"></p></div></div>
+      <form id="add-swimmer" class="add-swimmer">
+        <label class="field"><span>Swimmer name</span><input name="name" required maxlength="80" placeholder="First and last name"></label>
+        <button type="submit" class="btn primary">Add swimmer</button>
+      </form>
+      <p id="roster-error" class="error" role="alert"></p>
+      <div id="roster-list" class="roster-grid"></div>
+    </section>
+  </section>
+  <section id="dashboard">
+    <div id="roster-link" class="back-link" hidden><button id="return-roster" class="btn small" type="button">← Team Roster</button></div>
+    <div class="hero">
+      <div><span class="eyebrow" id="profile-label">Personal dashboard</span><h1 id="swimmer-name" tabindex="-1"></h1><p id="profile-description"></p></div>
+      <div class="hero-actions"><button id="rename-open" class="btn ghost" type="button">Edit name</button><button id="jump-to-log" class="btn lime" type="button">+ Log a race</button></div>
+    </div>
+    <div class="stats" aria-label="Race summary">
+      <div class="stat"><span>Races logged</span><strong id="race-count">0</strong></div>
+      <div class="stat"><span>Event &amp; pool combinations</span><strong id="event-count">0</strong></div>
+      <div class="stat"><span>Latest race</span><strong id="last-race">—</strong></div>
+    </div>
+    <div class="workspace">
+      <section class="panel" aria-labelledby="log-heading">
+        <div class="panel-head"><div><h2 id="log-heading">Log a race</h2><p id="log-description">Choose an event and enter your time.</p></div><button id="bulk-open" class="btn small" type="button">Bulk entry</button></div>
+        <form id="race-form">
+          <div class="fields">
+            <label class="field"><span>Event</span><select name="event" id="race-event" required></select></label>
+            <label class="field"><span>Pool</span><select name="course" id="race-course"></select></label>
+            <label class="field full"><span>Race time</span><input id="race-time" class="time-input" name="time" required maxlength="32" autocomplete="off" placeholder="52.37 or 1:02.34" aria-describedby="time-hint"><span id="time-hint" class="hint time-help" aria-live="polite">Enter seconds or minutes:seconds.</span></label>
+            <label class="field"><span>Date</span><input type="date" name="date" required></label>
+            <label class="field"><span>Meet</span><input name="meet" maxlength="160" placeholder="Optional"></label>
+          </div>
+          <details id="race-details">
+            <summary>More race details</summary>
+            <div class="fields">
+              <label class="field"><span>Location</span><input name="location" maxlength="160" placeholder="Optional"></label>
+              <label class="field"><span>Placement</span><input name="place" maxlength="30" placeholder="Optional"></label>
+              <label class="field full"><span>Timing method</span><select name="timing" id="race-timing"></select></label>
+              <label class="check full"><input type="checkbox" name="converted" id="race-converted"> This is a converted time</label>
+              <label id="from-field" class="field full" hidden><span>Original pool</span><select name="convertedFrom" id="race-from"></select></label>
+            </div>
+          </details>
+          <p id="race-error" class="error" role="alert"></p>
+          <div class="actions form-actions"><button id="save-race" class="btn primary" type="submit">Save race</button><button id="cancel-edit" class="btn" type="button" hidden>Cancel edit</button><button id="delete-race" class="btn danger" type="button" hidden>Delete race</button></div>
+        </form>
+      </section>
+      <section class="panel" aria-labelledby="results-heading">
+        <div class="panel-head"><div><h2 id="results-heading">Race results</h2><p>Review times by event and pool.</p></div></div>
+        <div id="result-tabs" class="tabs" role="tablist" aria-label="Race results">
+          <button id="tab-history" type="button" role="tab" aria-controls="results-body" data-tab="history">Race history</button>
+          <button id="tab-bests" type="button" role="tab" aria-controls="results-body" data-tab="bests">Personal bests</button>
+          <button id="tab-progress" type="button" role="tab" aria-controls="results-body" data-tab="progress">Progression</button>
+        </div>
+        <div id="results-body" role="tabpanel">
+          <div id="result-filters" class="filters">
+            <label class="field"><span>Event &amp; pool</span><select id="event-filter"></select></label>
+            <label id="sort-field" class="field"><span>Sort by</span><select id="history-sort">
+              <option value="new">Newest first</option><option value="old">Oldest first</option>
+              <option value="fast">Fastest first</option><option value="slow">Slowest first</option>
+            </select></label>
+          </div>
+          <div id="result-content"></div>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+<dialog id="backup-dialog" class="dialog" aria-labelledby="backup-title">
+  <div class="dialog-head"><h2 id="backup-title">LaneLog backups</h2><form method="dialog"><button class="btn small">Close</button></form></div>
+  <p class="hint">LaneLog saves changes in this browser. Download a backup to move your personal races and team roster to another browser or device.</p>
+  <div class="actions"><button id="download-backup" type="button" class="btn primary">Download backup</button></div>
+  <hr>
+  <form id="restore-form">
+    <label class="field"><span>Restore from a backup file</span><input id="backup-file" class="file-input" type="file" accept=".json,.txt,application/json,text/plain"></label>
+    <details id="legacy-details"><summary>Paste an older LaneLog save code</summary>
+      <label class="field"><span>LaneLog save code</span><textarea id="legacy-code" rows="4" spellcheck="false" placeholder="LL1|…"></textarea></label>
+    </details>
+    <p class="hint">Restoring replaces the current data after you confirm.</p>
+    <p id="restore-error" class="error" role="alert"></p>
+    <div class="actions"><button id="restore-submit" type="submit" class="btn">Restore backup</button></div>
+  </form>
+</dialog>
+<dialog id="rename-dialog" class="dialog" aria-labelledby="rename-title">
+  <div class="dialog-head"><h2 id="rename-title">Edit swimmer name</h2><form method="dialog"><button class="btn small">Close</button></form></div>
+  <form id="rename-form">
+    <label class="field"><span>Swimmer name</span><input name="name" maxlength="80" required></label>
+    <p id="rename-error" class="error" role="alert"></p>
+    <div class="actions"><button type="submit" class="btn primary">Save name</button></div>
+  </form>
+</dialog>
+<dialog id="bulk-dialog" class="dialog" aria-labelledby="bulk-title">
+  <div class="dialog-head"><h2 id="bulk-title">Bulk race entry</h2><form method="dialog"><button class="btn small">Close</button></form></div>
+  <p id="bulk-swimmer" class="hint"></p>
+  <form id="bulk-form">
+    <label class="field"><span>Races to add</span>
+      <textarea name="races" rows="5" required spellcheck="false" aria-describedby="bulk-hint" placeholder="200IM | 2:15.60 | 2026-01-07 | County Meet"></textarea>
+    </label>
+    <p id="bulk-hint" class="hint">One race per line. Separate event, time, date, and optional meet with <strong>|</strong>.</p>
+    <label class="field"><span>Default pool for these races</span><select name="course" id="bulk-course"></select></label>
+    <details><summary>Use the original LaneLog format</summary>
+      <p class="hint">Paste lines like <code>200IM-2:15.60-2026-01-07-County</code> above. Optionally paste matching details below.</p>
+      <label class="field"><span>Original race details</span><textarea name="details" rows="3" spellcheck="false" placeholder="SCY-Auto-2-No-None-County Meet"></textarea></label>
+    </details>
+    <p id="bulk-error" class="error" role="alert"></p>
+    <div class="actions"><button type="submit" class="btn primary">Save races</button></div>
+  </form>
+</dialog>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const storageKey = 'LaneLog.standalone.v1';
+const courses = { SCY: '25 yards (SCY)', SCM: '25 meters (SCM)', LCM: '50 meters (LCM)' };
+const timingOptions = ['Automatic', 'Semi-Automatic', 'Manual', 'Unknown'];
+const strokes = {
+  Freestyle: { distances: [25, 50, 100, 200, 400, 500, 800, 1000, 1500, 1650], codes: ['F', 'FREE', 'FR', 'FREESTYLE'] },
+  Backstroke: { distances: [25, 50, 100, 200], codes: ['B', 'BACK', 'BK', 'BACKSTROKE'] },
+  Breaststroke: { distances: [25, 50, 100, 200], codes: ['R', 'BREAST', 'BR', 'BREASTSTROKE'] },
+  Butterfly: { distances: [25, 50, 100, 200], codes: ['Y', 'FLY', 'FL', 'BUTTERFLY'] },
+  IM: { distances: [100, 200, 400], codes: ['I', 'IM'] }
+};
+const defaultEvent = '50 Freestyle';
+const raceForm = $('race-form');
+const raceFields = raceForm.elements;
+let state = { personal: { name: 'My Times', races: [] }, coaches: [], mode: 'personal', selected: -1 };
+let tab = 'history';
+let editing = -1;
+let storageProblem = '';
+let unreadableStorage = false;
+let restoreRunning = false;
+
+function swimTime(input) {
+  const match = String(input).trim().match(/^(?:(\d+):([0-5]?\d)|(\d+))(?:[.,](\d{1,2}))?$/);
+  if (!match) return null;
+  const hundredths = (Number(match[1] || 0) * 60 + Number(match[2] || match[3])) * 100
+    + Number((match[4] || '').padEnd(2, '0'));
+  return Number.isSafeInteger(hundredths) && hundredths > 0 ? hundredths : null;
+}
+
+function formatTime(hundredths) {
+  const minutes = Math.floor(hundredths / 6000);
+  const seconds = Math.floor(hundredths / 100) % 60;
+  const fraction = String(hundredths % 100).padStart(2, '0');
+  return minutes ? `${minutes}:${String(seconds).padStart(2, '0')}.${fraction}` : `${seconds}.${fraction}`;
+}
+
+function eventName(input) {
+  const match = input.trim().toUpperCase().match(/^(\d+)\s*([A-Z]+)$/);
+  if (!match || !Number(match[1])) return '';
+  const stroke = Object.keys(strokes).find(name => strokes[name].codes.includes(match[2]));
+  return stroke ? `${Number(match[1])} ${stroke}` : '';
+}
+
+function isDate(date) {
+  const stamp = Date.parse(date + 'T00:00:00Z');
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(stamp)
+    && new Date(stamp).toISOString().slice(0, 10) === date;
+}
+
+function localDate() {
+  const now = new Date();
+  return new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+function dateLabel(date) {
+  return isDate(date) ? dateFormatter.format(new Date(date + 'T00:00:00Z')) : date || 'No date';
+}
+
+function normalizeRace(raw) {
+  if (!raw || typeof raw !== 'object' || typeof raw.event !== 'string' || !raw.event.trim()) {
+    throw Error('A race is missing its event.');
+  }
+  const time = swimTime(raw.time ?? '');
+  if (!time || !Object.hasOwn(courses, raw.course)) throw Error('A race has an invalid time or pool.');
+  const converted = Boolean(raw.converted);
+  const from = converted ? raw.convertedFrom : '';
+  if (converted && (!Object.hasOwn(courses, from) || from === raw.course)) {
+    throw Error('A converted race needs a different original pool.');
+  }
+  return {
+    event: eventName(raw.event) || raw.event.trim(),
+    time: formatTime(time), hundredths: time, course: raw.course, converted, convertedFrom: from,
+    date: typeof raw.date === 'string' ? raw.date : '',
+    timing: typeof raw.timing === 'string' && raw.timing ? raw.timing : 'Unknown',
+    place: typeof raw.place === 'string' ? raw.place : '',
+    meet: typeof raw.meet === 'string' ? raw.meet : '',
+    location: typeof raw.location === 'string' ? raw.location : ''
+  };
+}
+
+function decodeBackup(input) {
+  const text = input.trim();
+  if (!text) throw Error('Choose a backup file or paste a save code.');
+  let data;
+  if (text.startsWith('LL1|')) {
+    const legacy = JSON.parse(text.slice(4));
+    if (!Array.isArray(legacy) || legacy.length !== 4 || !Array.isArray(legacy[1])
+        || !['p', 'c', ''].includes(legacy[2])) throw Error('Invalid older LaneLog save code.');
+    const courseCode = new Map([['Y','SCY'], ['S','SCM'], ['L','LCM']]);
+    const timingCode = new Map([['A','Automatic'], ['S','Semi-Automatic'], ['M','Manual'], ['U','Unknown']]);
+    function unpack(swimmer) {
+      if (!Array.isArray(swimmer) || swimmer.length !== 2 || !Array.isArray(swimmer[1])) {
+        throw Error('Invalid swimmer in the save code.');
+      }
+      const races = swimmer[1].map(row => {
+        if (!Array.isArray(row) || row.length < 6 || row.length > 9 || !row.every(v => typeof v === 'string')) {
+          throw Error('Invalid race in the save code.');
+        }
+        return {
+          event: row[0], time: row[1], date: row[2].replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'),
+          location: row[3], course: courseCode.get(row[4]), timing: timingCode.get(row[5]) || row[5],
+          place: row[6] || '', converted: Boolean(row[7]), convertedFrom: courseCode.get(row[7]), meet: row[8] || ''
+        };
+      });
+      return { name: swimmer[0], races };
+    }
+    data = { personal: unpack(legacy[0]), coaches: legacy[1].map(unpack), mode: legacy[2] === 'c' ? 'coach' : 'personal', selected: legacy[3] };
+  } else {
+    const backup = JSON.parse(text);
+    if (backup?.app !== 'LaneLog' || backup.version !== 1) throw Error('Choose a LaneLog backup file or an LL1 save code.');
+    data = backup.data;
+  }
+  if (!data || !Array.isArray(data.coaches) || !['personal', 'coach'].includes(data.mode)
+      || !Number.isInteger(data.selected) || data.selected < -1 || data.selected >= data.coaches.length) {
+    throw Error('Invalid LaneLog backup structure.');
+  }
+  function swimmerData(swimmer, fallback) {
+    if (!swimmer || typeof swimmer.name !== 'string' || !Array.isArray(swimmer.races)) {
+      throw Error('Invalid swimmer in the backup.');
+    }
+    return { name: swimmer.name.trim() || fallback, races: swimmer.races.map(normalizeRace) };
+  }
+  return {
+    personal: swimmerData(data.personal, 'My Times'),
+    coaches: data.coaches.map((swimmer, index) => swimmerData(swimmer, 'Swimmer ' + (index + 1))),
+    mode: data.mode,
+    selected: data.selected
+  };
+}
+
+function backupText(data = state, indent = 0) {
+  return JSON.stringify({ app: 'LaneLog', version: 1, data }, null, indent);
+}
+
+function showStorage() {
+  const status = $('save-status');
+  status.textContent = storageProblem || 'Autosave on';
+  status.classList.toggle('warning', Boolean(storageProblem));
+}
+
+function readStorage() {
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        state = decodeBackup(saved);
+      } catch {
+        unreadableStorage = true;
+        storageProblem = 'Saved data could not be opened';
+      }
+    }
+  } catch {
+    storageProblem = 'Autosave unavailable · download a backup';
+  }
+  showStorage();
+}
+
+function saveState() {
+  if (unreadableStorage) {
+    storageProblem = 'Autosave paused · restore or download a backup';
+  } else {
+    try {
+      localStorage.setItem(storageKey, backupText());
+      storageProblem = '';
+    } catch {
+      storageProblem = 'Autosave unavailable · download a backup';
+    }
+  }
+  showStorage();
+}
+
+function notify(message) {
+  $('notice').textContent = message;
+}
+
+function activeSwimmer() {
+  return state.mode === 'personal' ? state.personal : state.coaches[state.selected];
+}
+
+function make(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+
+function setOptions(select, rows, selected) {
+  select.replaceChildren(...rows.map(([value, text]) => new Option(text, value)));
+  if (rows.some(([value]) => value === selected)) select.value = selected;
+}
+
+function raceKey(race) {
+  return JSON.stringify([race.event, race.course]);
+}
+
+function eventGroups(races) {
+  const groups = new Map();
+  for (const race of races) groups.set(raceKey(race), `${race.event} · ${race.course}`);
+  return [...groups].sort((a, b) => a[1].localeCompare(b[1], undefined, { numeric: true }));
+}
+
+function fillRaceEvents(swimmer, selected) {
+  const options = Object.entries(strokes).map(([stroke, { distances }]) => {
+    const group = document.createElement('optgroup');
+    group.label = stroke;
+    group.append(...distances.map(distance => {
+      const name = `${distance} ${stroke}`;
+      return new Option(name, name);
+    }));
+    return group;
+  });
+  const oldEvents = [...new Set(swimmer.races.map(race => race.event))]
+    .filter(event => !options.some(group => [...group.children].some(option => option.value === event)));
+  $('race-event').replaceChildren(...options, ...oldEvents.map(event => new Option(event, event)));
+  $('race-event').value = selected || defaultEvent;
+}
+
+function resetRaceForm(previous, sameMeet = false) {
+  editing = -1;
+  raceForm.reset();
+  fillRaceEvents(activeSwimmer(), previous?.event);
+  raceFields.course.value = previous?.course || 'SCY';
+  if (previous?.timing && timingOptions.includes(previous.timing)) raceFields.timing.value = previous.timing;
+  raceFields.date.value = sameMeet && isDate(previous.date) ? previous.date : localDate();
+  raceFields.meet.value = sameMeet ? previous.meet : '';
+  raceFields.location.value = sameMeet ? previous.location : '';
+  $('race-details').open = false;
+  $('log-heading').textContent = 'Log a race';
+  $('save-race').textContent = 'Save race';
+  $('cancel-edit').hidden = true;
+  $('delete-race').hidden = true;
+  $('race-error').textContent = '';
+  syncConversion();
+  previewTime();
+}
+
+function renderRoster() {
+  const list = $('roster-list');
+  list.replaceChildren();
+  $('roster-count').textContent = `${state.coaches.length} ${state.coaches.length === 1 ? 'swimmer' : 'swimmers'} on your roster`;
+  if (!state.coaches.length) {
+    list.append(make('div', 'Add a swimmer to start tracking their races.', 'empty'));
+    return;
+  }
+  state.coaches.forEach((swimmer, index) => {
+    const button = make('button', undefined, 'swimmer');
+    button.type = 'button';
+    const initials = swimmer.name.split(/\s+/).slice(0, 2).map(part => Array.from(part)[0]).join('').toUpperCase();
+    const badge = make('span', initials, 'initials');
+    badge.setAttribute('aria-hidden', 'true');
+    const label = make('span', undefined, 'swimmer-label');
+    label.append(make('strong', swimmer.name), make('small', `${swimmer.races.length} ${swimmer.races.length === 1 ? 'race' : 'races'}`));
+    const arrow = make('span', '→');
+    arrow.setAttribute('aria-hidden', 'true');
+    button.append(badge, label, arrow);
+    button.addEventListener('click', () => navigate('coach', index));
+    list.append(button);
+  });
+}
+
+function renderProfile() {
+  const swimmer = activeSwimmer();
+  const coach = state.mode === 'coach';
+  $('personal-mode').setAttribute('aria-current', String(!coach));
+  $('coach-mode').setAttribute('aria-current', String(coach));
+  $('view-label').textContent = coach ? 'Coach mode' : 'Personal mode';
+  $('roster').hidden = Boolean(swimmer);
+  $('dashboard').hidden = !swimmer;
+  if (!swimmer) {
+    renderRoster();
+    return;
+  }
+  $('roster-link').hidden = !coach;
+  $('profile-label').textContent = coach ? 'Swimmer dashboard' : 'Personal dashboard';
+  $('swimmer-name').textContent = swimmer.name;
+  $('profile-description').textContent = coach ? 'Race times, personal bests, and progress for this swimmer.' : 'Track your race times and watch your progress.';
+  $('log-description').textContent = coach ? `Logging for ${swimmer.name}` : 'Choose an event and enter your time.';
+  $('race-count').textContent = swimmer.races.length;
+  $('event-count').textContent = eventGroups(swimmer.races).length;
+  const latest = swimmer.races.reduce((date, race) => isDate(race.date) && race.date > date ? race.date : date, '');
+  $('last-race').textContent = latest ? dateLabel(latest) : '—';
+  renderResults();
+}
+
+function navigate(mode, selected = -1) {
+  if (state.mode === mode && (mode === 'personal' || state.selected === selected)) return;
+  state.mode = mode;
+  state.selected = selected;
+  tab = 'history';
+  $('event-filter').value = '';
+  $('history-sort').value = 'new';
+  $('roster-error').textContent = '';
+  notify('');
+  saveState();
+  renderProfile();
+  if (activeSwimmer()) resetRaceForm(activeSwimmer().races.at(-1));
+  (activeSwimmer() ? $('swimmer-name') : $('roster-title')).focus();
+}
+
+function emptyResults(message) {
+  return make('div', message, 'empty');
+}
+
+function listResults(entries, editable) {
+  const list = make('ul', undefined, 'results');
+  for (const { race, index } of entries) {
+    const row = make('li', undefined, 'result');
+    const info = make('div', undefined, 'result-info');
+    const title = make('strong', race.event);
+    const pool = make('span', race.course, 'course');
+    const side = make('div', undefined, 'result-side');
+    const when = [dateLabel(race.date), race.meet, race.location].filter(Boolean).join(' · ');
+    const extra = [
+      race.timing, race.place && `Place: ${race.place}`,
+      race.converted && `Converted from ${race.convertedFrom}`
+    ].filter(Boolean).join(' · ');
+    info.append(title, pool, make('div', when), make('div', extra));
+    side.append(make('span', race.time, 'time'));
+    if (editable) {
+      const edit = make('button', 'Edit', 'btn small');
+      edit.type = 'button';
+      edit.setAttribute('aria-label', `Edit ${race.event}, ${race.time}, ${dateLabel(race.date)}`);
+      edit.addEventListener('click', () => editRace(index));
+      side.append(edit);
+    }
+    row.append(info, side);
+    list.append(row);
+  }
+  return list;
+}
+
+function svgElement(tag, attrs, text) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function progressionChart(races) {
+  const figure = make('figure', undefined, 'graph-wrap');
+  const svg = svgElement('svg', { viewBox: '0 0 500 220', role: 'img', 'aria-labelledby': 'graph-title' });
+  const times = races.map(race => race.hundredths);
+  const start = Date.parse(races[0].date);
+  const end = Date.parse(races.at(-1).date);
+  const min = Math.min(...times);
+  const max = Math.max(...times);
+  const pad = Math.max(1, Math.ceil((max - min) * .13));
+  const low = Math.max(0, min - pad);
+  const high = max + pad;
+  const sameDate = start === end;
+  const left = 70, right = 472, top = 16, bottom = 177;
+  const x = race => sameDate ? (left + right) / 2 : left + (Date.parse(race.date) - start) / (end - start) * (right - left);
+  const y = value => top + (value - low) / (high - low) * (bottom - top);
+  const first = races[0], last = races.at(-1);
+
+  svg.append(svgElement('title', { id: 'graph-title' }, `${first.event} ${first.course} progression. First ${first.time}, latest ${last.time}, best ${formatTime(min)}.`));
+  const ticks = [...new Set(Array.from({ length: 5 }, (_, index) => Math.round(low + (high - low) * index / 4)))];
+  for (const value of ticks) {
+    svg.append(
+      svgElement('line', { x1: left, x2: right, y1: y(value), y2: y(value), stroke: '#d6e3e1' }),
+      svgElement('text', { x: left - 8, y: y(value) + 4, 'text-anchor': 'end' }, formatTime(value))
+    );
+  }
+  svg.append(svgElement('polyline', { points: races.map(race => `${x(race)},${y(race.hundredths)}`).join(' '),
+    fill: 'none', stroke: '#08695c', 'stroke-width': 3, 'stroke-linejoin': 'round' }));
+  for (const race of races) {
+    const point = svgElement('circle', { cx: x(race), cy: y(race.hundredths), r: 4.5, fill: '#08695c', stroke: 'white' });
+    point.append(svgElement('title', {}, `${dateLabel(race.date)} · ${race.time}`));
+    svg.append(point);
+  }
+  svg.append(svgElement('text', { x: x(first), y: 203, 'text-anchor': sameDate ? 'middle' : 'start' }, dateLabel(first.date)));
+  if (!sameDate) svg.append(svgElement('text', { x: x(last), y: 203, 'text-anchor': 'end' }, dateLabel(last.date)));
+  const counts = `${races.length} ${races.length === 1 ? 'race' : 'races'} · Best ${formatTime(min)} · Latest ${last.time}`;
+  figure.append(svg, make('figcaption', counts));
+  return figure;
+}
+
+function renderResults() {
+  const swimmer = activeSwimmer();
+  if (!swimmer) return;
+  for (const button of $('result-tabs').querySelectorAll('button')) {
+    const selected = button.dataset.tab === tab;
+    button.tabIndex = selected ? 0 : -1;
+    button.setAttribute('aria-selected', String(selected));
+  }
+  $('results-body').setAttribute('aria-labelledby', 'tab-' + tab);
+  const filter = $('event-filter');
+  const previous = filter.value;
+  const body = $('result-content');
+  body.replaceChildren();
+
+  const eligible = swimmer.races.map((race, index) => ({ race, index })).filter(({ race }) =>
+    tab === 'history' || (!race.converted && (tab !== 'progress' || isDate(race.date))));
+  $('sort-field').hidden = tab !== 'history';
+  $('result-filters').hidden = !eligible.length;
+  if (!eligible.length) {
+    const empty = {
+      history: 'No races yet. Save a race to start your history.',
+      bests: 'Personal bests are calculated from actual race times.',
+      progress: 'Log a dated race to see progression. Converted times are excluded.'
+    };
+    body.append(emptyResults(empty[tab]));
+    return;
+  }
+
+  const groups = eventGroups(eligible.map(({ race }) => race));
+  const options = tab === 'progress' ? groups : [['', 'All events'], ...groups];
+  setOptions(filter, options, previous);
+  const entries = eligible.filter(({ race }) => !filter.value || raceKey(race) === filter.value);
+  if (tab === 'progress') {
+    const races = entries.map(({ race }) => race).sort((a, b) => a.date.localeCompare(b.date));
+    body.append(progressionChart(races));
+    if (races.length === 1) body.append(make('p', 'Add another race in this event and pool to see how your time changes.', 'hint'));
+    return;
+  }
+  if (tab === 'bests') {
+    const bests = new Map();
+    for (const entry of entries) {
+      const key = raceKey(entry.race);
+      if (!bests.has(key) || entry.race.hundredths < bests.get(key).race.hundredths) bests.set(key, entry);
+    }
+    body.append(listResults(groups.map(([key]) => bests.get(key)).filter(Boolean), false));
+    return;
+  }
+
+  const ordering = {
+    new: (a, b) => b.race.date.localeCompare(a.race.date) || b.index - a.index,
+    old: (a, b) => a.race.date.localeCompare(b.race.date) || a.index - b.index,
+    fast: (a, b) => a.race.hundredths - b.race.hundredths,
+    slow: (a, b) => b.race.hundredths - a.race.hundredths
+  };
+  entries.sort(ordering[$('history-sort').value]);
+  body.append(listResults(entries, true));
+}
+
+function previewTime() {
+  const value = raceFields.time.value;
+  const time = swimTime(value);
+  const hint = $('time-hint');
+  hint.textContent = time ? `Will save as ${formatTime(time)}` : value.trim() ?
+    'Use a time like 52.37, 1:02.34, or 62.34.' : 'Seconds or minutes:seconds. For example, 62.34 becomes 1:02.34.';
+  hint.classList.toggle('time-ready', Boolean(time));
+}
+
+function syncConversion() {
+  const from = raceFields.convertedFrom;
+  const selected = from.value;
+  setOptions(from, [['', 'Select original pool'], ...Object.entries(courses).filter(([course]) => course !== raceFields.course.value)], selected);
+  $('from-field').hidden = !raceFields.converted.checked;
+  from.required = raceFields.converted.checked;
+}
+
+function jumpToForm() {
+  raceFields.time.focus({ preventScroll: true });
+  raceFields.time.scrollIntoView({ block: 'nearest' });
+}
+
+function editRace(index) {
+  const race = activeSwimmer().races[index];
+  resetRaceForm();
+  editing = index;
+  for (const name of ['event', 'course', 'time', 'date', 'meet', 'location', 'place']) raceFields[name].value = race[name];
+  for (const option of [...raceFields.timing.options]) {
+    if (!timingOptions.includes(option.value)) option.remove();
+  }
+  if (!timingOptions.includes(race.timing)) raceFields.timing.add(new Option(race.timing, race.timing));
+  raceFields.timing.value = race.timing;
+  raceFields.converted.checked = race.converted;
+  syncConversion();
+  raceFields.convertedFrom.value = race.convertedFrom;
+  $('race-details').open = Boolean(race.location || race.place || race.timing !== 'Automatic' || race.converted);
+  $('log-heading').textContent = 'Edit race';
+  $('save-race').textContent = 'Save changes';
+  $('cancel-edit').hidden = false;
+  $('delete-race').hidden = false;
+  previewTime();
+  jumpToForm();
+}
+
+function showSavedRaces(message) {
+  saveState();
+  tab = 'history';
+  $('event-filter').value = '';
+  $('history-sort').value = 'new';
+  renderProfile();
+  notify(message);
+}
+
+function parseBulk(text, detailText, defaultCourse) {
+  const lines = value => value.trim().split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const rows = lines(text);
+  const details = lines(detailText);
+  if (!rows.length) throw Error('Enter at least one race.');
+  if (details.length && details.length !== rows.length) throw Error('Enter one details line for each race, or leave the details box blank.');
+  const poolCodes = new Map([
+    ['SCY','SCY'], ['25YD','SCY'], ['25Y','SCY'], ['SCM','SCM'], ['25M','SCM'], ['LCM','LCM'], ['50M','LCM']
+  ]);
+  const timingCodes = new Map([
+    ['AUTO','Automatic'], ['AUTOMATIC','Automatic'], ['SEMI','Semi-Automatic'], ['SEMIAUTO','Semi-Automatic'],
+    ['MANUAL','Manual'], ['STOPWATCH','Manual'], ['UNKNOWN','Unknown']
+  ]);
+  const errors = [];
+  const races = [];
+  rows.forEach((line, index) => {
+    try {
+      const piped = line.includes('|');
+      const fields = piped ? line.split('|').map(value => value.trim()) :
+        line.match(/^(.+?)-([\d:.,]+)-(\d{4}-\d{2}-\d{2})-(.+)$/)?.slice(1);
+      if (!fields || fields.length < 3 || fields.length > 4) throw Error('Use event | time | date | optional meet.');
+      const [rawEvent, time, date, where = ''] = fields;
+      const event = eventName(rawEvent);
+      if (!event) throw Error('Use an event like 100 Free or 200 IM.');
+      if (!swimTime(time)) throw Error('Use a race time like 52.37 or 1:02.34.');
+      if (!isDate(date)) throw Error('Enter a valid date in YYYY-MM-DD format.');
+      const race = { event, time, date, course: defaultCourse, timing: 'Unknown',
+        meet: piped ? where : '', location: piped ? '' : where.trim() };
+      if (details.length) {
+        const [pool, timing, place, answer, from, ...meet] = details[index].split('-').map(value => value.trim());
+        if (from === undefined) throw Error('Race details need pool, timing, placement, conversion, and original pool.');
+        race.course = poolCodes.get(pool.toUpperCase());
+        race.timing = timingCodes.get(timing.toUpperCase());
+        if (!race.course || !race.timing) throw Error('Check the pool and timing method.');
+        if (!/^(yes|no|y|n)$/i.test(answer)) throw Error('Set converted to Yes or No.');
+        race.place = /^NA$/i.test(place) ? '' : place;
+        race.converted = /^(yes|y)$/i.test(answer);
+        race.convertedFrom = poolCodes.get(from.toUpperCase());
+        if (meet.length) race.meet = meet.join('-');
+      }
+      races.push(normalizeRace(race));
+    } catch (error) {
+      errors.push(`Line ${index + 1}: ${error.message}`);
+    }
+  });
+  if (errors.length) throw Error(errors.join('\n'));
+  return races;
+}
+
+setOptions($('race-course'), Object.entries(courses), 'SCY');
+setOptions($('bulk-course'), Object.entries(courses), 'SCY');
+setOptions($('race-timing'), timingOptions.map(value => [value, value]), 'Automatic');
+
+$('personal-mode').addEventListener('click', () => navigate('personal'));
+$('coach-mode').addEventListener('click', () => navigate('coach'));
+$('return-roster').addEventListener('click', () => navigate('coach'));
+$('jump-to-log').addEventListener('click', () => {
+  if (editing >= 0) resetRaceForm(activeSwimmer().races.at(-1));
+  jumpToForm();
+});
+$('event-filter').addEventListener('change', renderResults);
+$('history-sort').addEventListener('change', renderResults);
+
+const tabs = [...$('result-tabs').querySelectorAll('button')];
+function selectTab(button) {
+  tab = button.dataset.tab;
+  renderResults();
+  button.focus();
+}
+for (const button of tabs) button.addEventListener('click', () => selectTab(button));
+$('result-tabs').addEventListener('keydown', event => {
+  const index = tabs.indexOf(document.activeElement);
+  const target = {
+    ArrowRight: (index + 1) % tabs.length,
+    ArrowLeft: (index + tabs.length - 1) % tabs.length,
+    Home: 0,
+    End: tabs.length - 1
+  }[event.key];
+  if (index < 0 || target === undefined) return;
+  event.preventDefault();
+  selectTab(tabs[target]);
+});
+
+$('add-swimmer').addEventListener('submit', event => {
+  event.preventDefault();
+  const name = event.currentTarget.elements.name.value.trim();
+  if (!name) {
+    $('roster-error').textContent = 'Enter a swimmer name.';
+    return;
+  }
+  state.coaches.push({ name, races: [] });
+  event.currentTarget.reset();
+  navigate('coach', state.coaches.length - 1);
+  notify(`Added ${name} to Team Roster.`);
+});
+
+$('rename-open').addEventListener('click', () => {
+  $('rename-error').textContent = '';
+  $('rename-form').elements.name.value = activeSwimmer().name;
+  $('rename-dialog').showModal();
+  $('rename-form').elements.name.select();
+});
+$('rename-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const name = event.currentTarget.elements.name.value.trim();
+  if (!name) {
+    $('rename-error').textContent = 'Enter a swimmer name.';
+    return;
+  }
+  activeSwimmer().name = name;
+  saveState();
+  renderProfile();
+  $('rename-dialog').close();
+  notify('Swimmer name updated.');
+});
+
+raceFields.time.addEventListener('input', previewTime);
+raceFields.time.addEventListener('blur', () => {
+  const time = swimTime(raceFields.time.value);
+  if (time) raceFields.time.value = formatTime(time);
+  previewTime();
+});
+raceFields.converted.addEventListener('change', syncConversion);
+raceFields.course.addEventListener('change', syncConversion);
+
+raceForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const values = Object.fromEntries(new FormData(raceForm));
+  if (!swimTime(values.time)) {
+    $('race-error').textContent = 'Enter a valid time, such as 52.37 or 1:02.34.';
+    raceFields.time.focus();
+    return;
+  }
+  if (!isDate(values.date)) {
+    $('race-error').textContent = 'Enter a valid race date.';
+    raceFields.date.focus();
+    return;
+  }
+  for (const field of ['meet', 'location', 'place']) values[field] = values[field].trim();
+  let race;
+  try {
+    race = normalizeRace(values);
+  } catch (error) {
+    $('race-error').textContent = error.message;
+    return;
+  }
+  const swimmer = activeSwimmer();
+  const updating = editing >= 0;
+  if (updating) swimmer.races[editing] = race;
+  else swimmer.races.push(race);
+  showSavedRaces(`${updating ? 'Updated' : 'Logged'} ${race.event} · ${race.time} for ${swimmer.name}.`);
+  resetRaceForm(updating ? swimmer.races.at(-1) : race, !updating);
+  if (!updating) raceFields.time.focus();
+  else $('tab-history').focus();
+});
+$('cancel-edit').addEventListener('click', () => {
+  resetRaceForm(activeSwimmer().races.at(-1));
+  jumpToForm();
+});
+$('delete-race').addEventListener('click', () => {
+  if (editing < 0 || !confirm('Delete this race?')) return;
+  const races = activeSwimmer().races;
+  races.splice(editing, 1);
+  showSavedRaces('Race deleted.');
+  resetRaceForm(races.at(-1));
+  jumpToForm();
+});
+
+$('bulk-open').addEventListener('click', () => {
+  $('bulk-form').reset();
+  $('bulk-error').textContent = '';
+  $('bulk-course').value = raceFields.course.value;
+  $('bulk-swimmer').textContent = `Logging for ${activeSwimmer().name}`;
+  $('bulk-dialog').showModal();
+  $('bulk-form').elements.races.focus();
+});
+$('bulk-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const { races, details, course } = event.currentTarget.elements;
+  const swimmer = activeSwimmer();
+  let added;
+  try {
+    added = parseBulk(races.value, details.value, course.value);
+  } catch (error) {
+    $('bulk-error').textContent = error.message;
+    return;
+  }
+  for (const race of added) swimmer.races.push(race);
+  $('bulk-dialog').close();
+  showSavedRaces(`Logged ${added.length} ${added.length === 1 ? 'race' : 'races'} for ${swimmer.name}.`);
+  if (editing < 0) {
+    const draft = raceFields.event.value;
+    fillRaceEvents(swimmer, draft);
+  }
+});
+
+$('open-backup').addEventListener('click', () => {
+  $('restore-form').reset();
+  $('restore-error').textContent = '';
+  $('legacy-details').open = false;
+  $('backup-dialog').showModal();
+});
+$('download-backup').addEventListener('click', () => {
+  const url = URL.createObjectURL(new Blob([backupText(state, 2)], { type: 'application/json' }));
+  const link = make('a');
+  link.href = url;
+  link.download = `LaneLog-backup-${localDate()}.json`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+});
+$('restore-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (restoreRunning) return;
+  restoreRunning = true;
+  $('restore-submit').disabled = true;
+  $('restore-error').textContent = '';
+  try {
+    const file = $('backup-file').files[0];
+    const code = $('legacy-code').value.trim();
+    if (file && code) throw Error('Choose either the backup file or the pasted code.');
+    const restored = decodeBackup(file ? await file.text() : code);
+    const count = restored.personal.races.length + restored.coaches.reduce((total, swimmer) => total + swimmer.races.length, 0);
+    if (!$('backup-dialog').open || !confirm(`Restore ${count} ${count === 1 ? 'race' : 'races'} and ${restored.coaches.length} team ${restored.coaches.length === 1 ? 'swimmer' : 'swimmers'}? This replaces the current personal and coach data.`)) return;
+    state = restored;
+    unreadableStorage = false;
+    saveState();
+    $('backup-dialog').close();
+    tab = 'history';
+    $('event-filter').value = '';
+    $('history-sort').value = 'new';
+    renderProfile();
+    if (activeSwimmer()) resetRaceForm(activeSwimmer().races.at(-1));
+    notify(`Backup restored · ${count} ${count === 1 ? 'race' : 'races'}.`);
+    (activeSwimmer() ? $('swimmer-name') : $('roster-title')).focus();
+  } catch (error) {
+    $('restore-error').textContent = error instanceof SyntaxError ? 'This backup could not be read. Check that the file or code is complete.' : error.message;
+  } finally {
+    restoreRunning = false;
+    $('restore-submit').disabled = false;
+  }
+});
+
+readStorage();
+renderProfile();
+if (activeSwimmer()) resetRaceForm(activeSwimmer().races.at(-1));
+</script>
+</body>
+</html>
